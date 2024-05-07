@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_aquarium/ui/loginPage.dart';
+import 'package:smart_aquarium/ui/aquariumsPage.dart';
 
 
 class RegisterPage extends StatelessWidget {
@@ -12,6 +13,14 @@ class RegisterPage extends StatelessWidget {
     String username = _usernameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => aquariumsPage()),
+    );
+  }
+  void _login(BuildContext context) {
+    // Tutaj dodaj kod logiki uwierzytelniania
 
     Navigator.push(
       context,
@@ -112,7 +121,7 @@ class RegisterPage extends StatelessWidget {
 ),
 SizedBox(height: 20.0),
 TextButton(
-  onPressed: () => _register(context),
+  onPressed: () => _login(context),
   child: Text(
     'Masz już konto?',
     style: TextStyle(fontSize: 20.0, color: Colors.blue), // Styl tekstu przycisku

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_aquarium/ui/registerPage.dart';
+import 'package:smart_aquarium/ui/aquariumsPage.dart';
 
 
 
@@ -15,12 +16,20 @@ class LoginPage extends StatelessWidget {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => RegisterPage()),
+      MaterialPageRoute(builder: (context) => aquariumsPage()),
     );
 
     // Tutaj można wykonać logikę uwierzytelniania, np. zapytanie do serwera
     // Jeśli uwierzytelnienie się powiedzie, możesz przejść do następnego ekranu
     // W przeciwnym razie możesz wyświetlić komunikat o błędzie lub inny odpowiedni komunikat
+  }
+  void _register(BuildContext context) {
+    // Tutaj dodaj kod logiki uwierzytelniania
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RegisterPage()),
+    );
   }
 @override
   Widget build(BuildContext context) {
@@ -99,7 +108,7 @@ class LoginPage extends StatelessWidget {
 ),
 SizedBox(height: 20.0),
 TextButton(
-  onPressed: () => _login(context),
+  onPressed: () => _register(context),
   child: Text(
     'Zarejestruj się',
     style: TextStyle(fontSize: 20.0, color: Colors.blue), // Styl tekstu przycisku
