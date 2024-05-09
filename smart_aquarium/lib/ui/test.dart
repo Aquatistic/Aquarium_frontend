@@ -1,9 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:smart_aquarium/ui/loginPage.dart';
 import 'package:smart_aquarium/ui/aquariumsPage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 
 class RegisterPage extends StatelessWidget {
@@ -11,88 +8,15 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  Future<void> _register(BuildContext context) async {
+  void _register(BuildContext context) {
     // Tutaj dodaj kod logiki uwierzytelniania
     String username = _usernameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
-    // Walidacja pól tekstowych
-    if (username.isEmpty || email.isEmpty || password.isEmpty) {
-      // Jeśli którekolwiek pole jest puste, wyświetl komunikat
-      _showErrorDialog(context, "Wszystkie pola muszą być wypełnione.");
-      return;
-    }
-
-    if (!isValidEmail(email)) {
-      // Jeśli adres e-mail jest niepoprawny, wyświetl komunikat
-      _showErrorDialog(context, "Niepoprawny adres e-mail.");
-      return;
-    }
-
-    if (!isStrongPassword(password)) {
-      // Jeśli hasło nie spełnia wymagań co do złożoności, wyświetl komunikat
-      _showErrorDialog(
-          context,
-          "Hasło musi zawierać co najmniej 8 znaków, w tym jedną wielką literę, jedną małą literę, jedną cyfrę i jeden znak specjalny.");
-      return;
-    }
-
-
-    // Sprawdzenie, czy użytkownik o podanej nazwie już istnieje
-    bool isUsernameTaken = await checkIfUsernameExists(username);
-    if (isUsernameTaken) {
-      // Jeśli login jest już zajęty, wyświetl komunikat
-      _showErrorDialog(context, "Podana nazwa użytkownika jest już zajęta.");
-      return;
-    }
-      // Rejestracja użytkownika
-    int userId =await registerUser(username, email, password);
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('logged_in_user', userId);
-        
 
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => AquariumsPage()),
-    );
-  }
-
-  bool isValidEmail(String email) {
-    // Prosta walidacja adresu e-mail przy użyciu wyrażenia regularnego
-    // Tutaj można użyć bardziej złożonego wyrażenia regularnego do bardziej zaawansowanej walidacji
-    String emailRegex =
-        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
-    return RegExp(emailRegex).hasMatch(email);
-  }
-
-  bool isStrongPassword(String password) {
-    // Walidacja złożoności hasła
-    // Tutaj można dodać bardziej złożone kryteria, takie jak minimalna długość, wymóg wielkiej litery, cyfry i znaku specjalnego
-    return password.length >= 8 &&
-        password.contains(RegExp(r'[A-Z]')) &&
-        password.contains(RegExp(r'[a-z]')) &&
-        password.contains(RegExp(r'[0-9]')) &&
-        password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
-  }
-
-  void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Błąd"),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
     );
   }
   void _login(BuildContext context) {
@@ -212,69 +136,4 @@ TextButton(
   }
 }
 
-Future<int> registerUser(String username, String email, String password) async {
-  try {
-    // Tworzymy adres URL z zapytaniem do API
-    var url = Uri.parse('http://localhost:6868/api/v1/users/new_user');
 
-    // Tworzymy ciało żądania w formacie JSON
-    var body = jsonEncode({
-      'userName': username,
-      'userEmail': email,
-      'userPassword': password,
-    });
-
-    // Wysyłamy żądanie POST do API
-    var response = await http.post(
-      url,
-      body: body,
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      // Parsujemy odpowiedź jako mapę
-      Map<String, dynamic> responseData = jsonDecode(response.body);
-      // Wyciągamy id nowoutworzonego użytkownika z odpowiedzi
-      int userId = responseData['userId'];
-      // Zwracamy id użytkownika
-      return userId;
-    } else {
-      print('Błąd podczas rejestracji użytkownika: ${response.statusCode}');
-      // W przypadku niepowodzenia zwracamy null
-      return -1;
-    }
-  } catch (e) {
-    print('Wystąpił błąd: $e');
-    // W przypadku wystąpienia wyjątku zwracamy null
-    return -1;
-  }
-}
-
-Future<bool> checkIfUsernameExists(String username) async {
-  try {
-    // Tworzymy adres URL z zapytaniem do API
-    var url = Uri.parse('http://localhost:6868/api/v1/users?username=$username');
-
-    // Wysyłamy żądanie GET do API
-    var response = await http.get(url);
-
-    // Sprawdzamy kod odpowiedzi - 200 oznacza sukces
-    if (response.statusCode == 200) {
-      // Parsujemy odpowiedź jako listę użytkowników
-      List<dynamic> users = jsonDecode(response.body);
-
-      // Sprawdzamy, czy lista użytkowników nie jest pusta
-      // Jeśli nie jest pusta, oznacza to, że użytkownik o podanej nazwie istnieje
-      return users.isNotEmpty;
-      // return false;
-    } else {
-      // Obsługa błędu w przypadku niepowodzenia żądania
-      print('Błąd podczas wysyłania żądania: ${response.statusCode}');
-      return false;
-    }
-  } catch (e) {
-    // Obsługa błędu w przypadku wystąpienia wyjątku
-    print('Wystąpił błąd: $e');
-    return false;
-  }
-}
