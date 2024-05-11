@@ -253,20 +253,20 @@ Future<int> registerUser(String username, String email, String password) async {
 Future<bool> checkIfUsernameExists(String username) async {
   try {
     // Tworzymy adres URL z zapytaniem do API
-    var url = Uri.parse('http://localhost:6868/api/v1/users?username=$username');
+    var url = Uri.parse('http://localhost:6868/api/v1/users');
 
     // Wysyłamy żądanie GET do API
     var response = await http.get(url);
 
     // Sprawdzamy kod odpowiedzi - 200 oznacza sukces
     if (response.statusCode == 200) {
-      // Parsujemy odpowiedź jako listę użytkowników
-      List<dynamic> users = jsonDecode(response.body);
+        List<dynamic> users = jsonDecode(response.body);
+      for (dynamic user in users) {
+        if (user['userName'] == username) {
+            return true;
+        }
+      } return false;
 
-      // Sprawdzamy, czy lista użytkowników nie jest pusta
-      // Jeśli nie jest pusta, oznacza to, że użytkownik o podanej nazwie istnieje
-      return users.isNotEmpty;
-      // return false;
     } else {
       // Obsługa błędu w przypadku niepowodzenia żądania
       print('Błąd podczas wysyłania żądania: ${response.statusCode}');

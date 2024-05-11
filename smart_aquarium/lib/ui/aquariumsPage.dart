@@ -24,7 +24,7 @@ class _AquariumsPageState extends State<AquariumsPage> {
     int loggedInUserId = prefs.getInt('logged_in_user') ?? 0; // Domyślna wartość w przypadku braku zalogowanego użytkownika
 
     if (loggedInUserId != 0) {
-      final response = await http.get(Uri.parse('http://localhost:6868/api/v1/aquarium?userId=$loggedInUserId'));
+      final response = await http.get(Uri.parse('http://localhost:6868/api/v1/aquarium/users/$loggedInUserId'));
 
     if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
