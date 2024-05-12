@@ -21,8 +21,7 @@ class _AquariumsPageState extends State<AquariumsPage> {
 
   Future<void> _loadAquariums() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int loggedInUserId = prefs.getInt('logged_in_user') ?? 0; // Domyślna wartość w przypadku braku zalogowanego użytkownika
-
+    int loggedInUserId = prefs.getInt('logged_in_user') ?? 0; 
     if (loggedInUserId != 0) {
       final response = await http.get(Uri.parse('http://localhost:6868/api/v1/aquarium/users/$loggedInUserId'));
 
@@ -30,9 +29,10 @@ class _AquariumsPageState extends State<AquariumsPage> {
         List<dynamic> data = jsonDecode(response.body);
         setState(() {
           _aquariums = data.map((item) => {
+            'aquariumId': item['aquariumId'],
             'aquariumName': item['aquariumName'],
             'aquariumCapacity': item['aquariumCapacity'],
-            'imagePath': 'assets/aqua.png', // Stały obrazek dla każdego akwarium
+            'imagePath': 'assets/aqua.png', 
           }).toList();
         });
       } else {
@@ -40,7 +40,7 @@ class _AquariumsPageState extends State<AquariumsPage> {
         print('Błąd podczas ładowania akwariów: ${response.statusCode}');
       }
     } else {
-      // Nie udało się odczytać identyfikatora zalogowanego użytkownika, obsłuż ten przypadek
+      print('Błąd podczas ładowania użytkownika');
     }
   }
 
@@ -52,9 +52,10 @@ class _AquariumsPageState extends State<AquariumsPage> {
       final response = await http.post(
         Uri.parse('http://localhost:6868/api/v1/aquarium/add'),
         body: jsonEncode({
-          'userId': loggedInUserId,
+
           'aquariumName': aquariumName,
           'aquariumCapacity': aquariumCapacity,
+          'userId': loggedInUserId,
         }),
         headers: {'Content-Type': 'application/json'},
       );
@@ -68,7 +69,7 @@ class _AquariumsPageState extends State<AquariumsPage> {
         print('Błąd podczas dodawania akwarium: ${response.statusCode}');
       }
     } else {
-      // Nie udało się odczytać identyfikatora zalogowanego użytkownika, obsłuż ten przypadek
+      print("brak zalogowanego usera");
     }
   }
 
@@ -114,11 +115,13 @@ class _AquariumsPageState extends State<AquariumsPage> {
   );
 }
 
-  void _navigateToDetailsPage(String imagePath, String imageName) {
+  void _navigateToDetailsPage(int aquariumId, String aquariumName) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setInt('aquarium_id', aquariumId);
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailsPage(imagePath, imageName),
+        builder: (context) => DetailsPage(aquariumId, aquariumName),
       ),
     );
   }
@@ -146,7 +149,7 @@ class _AquariumsPageState extends State<AquariumsPage> {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () => _navigateToDetailsPage(
-                _aquariums[index]['imagePath']!,
+                _aquariums[index]['aquariumId']!,
                 _aquariums[index]['aquariumName']!,
               ),
               child: Padding(

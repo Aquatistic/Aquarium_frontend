@@ -96,7 +96,6 @@ class RegisterPage extends StatelessWidget {
     );
   }
   void _login(BuildContext context) {
-    // Tutaj dodaj kod logiki uwierzytelniania
 
     Navigator.push(
       context,
@@ -207,7 +206,6 @@ TextButton(
           ),
         ),
       ),
-            // Figma Flutter Generator CreatteaccountWidget - FRAME
     );
   }
 }
@@ -215,7 +213,7 @@ TextButton(
 Future<int> registerUser(String username, String email, String password) async {
   try {
     // Tworzymy adres URL z zapytaniem do API
-    var url = Uri.parse('http://localhost:6868/api/v1/users/new_user');
+    var url = Uri.parse('http://localhost:6868/api/v1/users/add');
 
     // Tworzymy ciało żądania w formacie JSON
     var body = jsonEncode({
