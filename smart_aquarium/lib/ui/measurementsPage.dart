@@ -1,33 +1,56 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class MeasurementsPage extends StatefulWidget {
+  final int aquariumId;
+
+  MeasurementsPage(this.aquariumId);
+
   @override
   _MeasurementsPageState createState() => _MeasurementsPageState();
 }
 
 class _MeasurementsPageState extends State<MeasurementsPage> {
-  String measurementValue = '';
-
-  Future<void> fetchMeasurementValue() async {
-    var url = Uri.parse('http://localhost:6868/api/v1/measurements');
-
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
-      setState(() {
-        measurementValue = jsonData['measurementValue'].toString();
-      });
-    } else {
-      throw Exception('Failed to load measurement value');
-    }
-  }
+  bool _isLoading = true;
+  double _temperature = 0.0;
 
   @override
   void initState() {
     super.initState();
-    fetchMeasurementValue();
+    _fetchMeasurements();
+  }
+
+  Future<void> _fetchMeasurements() async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:6868/api/v1/measurements'));
+      if (response.statusCode == 200) {
+        final List<dynamic> measurements = jsonDecode(response.body);
+        final latestMeasurement = _findLatestMeasurement(measurements);
+        setState(() {
+          _temperature = latestMeasurement['measurementValue'].toDouble();
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load measurement data');
+      }
+    } catch (error) {
+      print('Error: $error');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Map<String, dynamic> _findLatestMeasurement(List<dynamic> measurements) {
+    Map<String, dynamic> latestMeasurement = measurements[0];
+    for (var measurement in measurements) {
+      if (DateTime.parse(measurement['measurementTimestamp']).isAfter(
+          DateTime.parse(latestMeasurement['measurementTimestamp']))) {
+        latestMeasurement = measurement;
+      }
+    }
+    return latestMeasurement;
   }
 
   @override
@@ -36,39 +59,24 @@ class _MeasurementsPageState extends State<MeasurementsPage> {
       appBar: AppBar(
         title: Text('Pomiary'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(height: 20),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Odczytana wartość: $measurementValue',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'Temperatura:',
+                    style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10.0),
+                  Text(
+                    '$_temperature °C',
+                    style: TextStyle(fontSize: 24.0, color: Colors.blue),
+                  ),
+                ],
               ),
             ),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () async {
-                  var url = Uri.parse('http://localhost:6868/api/v1/userSensor/add?sensorTypeId=1&aquariumId=1');
-                  var response = await http.post(url);
-              
-              if (response.statusCode == 200) {
-                // Wysłano pomyślnie
-              } else {
-                throw Exception('Failed to add sensor');
-              }
-            },
-            child: Text('Dodaj nowy czujnik'),
-          ),
-          SizedBox(height: 20),
-          // Tutaj możesz wyświetlać przyciski z czujnikami odczytanymi za pomocą GET z adresu http://localhost:6868/api/v1/userSensor
-          // Każdy przycisk powinien mieć odpowiednie dane czujnika
-        ],
-      ),
     );
   }
 }

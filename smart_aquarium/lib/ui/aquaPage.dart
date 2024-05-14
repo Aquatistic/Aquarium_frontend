@@ -13,7 +13,7 @@ class DetailsPage extends StatelessWidget {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MeasurementsPage()),
+        MaterialPageRoute(builder: (context) => MeasurementsPage(this.aquariumId)),
       );
   }
   @override
