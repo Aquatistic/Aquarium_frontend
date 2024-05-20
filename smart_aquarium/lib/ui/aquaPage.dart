@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smart_aquarium/ui/measurementsPage.dart';
+import 'package:smart_aquarium/ui/SensorsPage.dart';
 
 
 class DetailsPage extends StatelessWidget {
@@ -13,7 +13,7 @@ class DetailsPage extends StatelessWidget {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MeasurementsPage(this.aquariumId)),
+        MaterialPageRoute(builder: (context) => SensorsPage(this.aquariumId)),
       );
   }
   @override
@@ -61,7 +61,6 @@ class DetailsPage extends StatelessWidget {
             ),
             child: ElevatedButton(
               onPressed: () {
-                // Obsługa nawigacji dla przycisku "Alarmy"
               },
               child: Text(
                 'Alarmy',
@@ -83,7 +82,6 @@ class DetailsPage extends StatelessWidget {
             ),
             child: ElevatedButton(
               onPressed: () {
-                // Obsługa nawigacji dla przycisku "Zarządzaj akwarium"
               },
               child: Text(
                 'Zarządzaj akwarium',
@@ -125,7 +123,6 @@ class DetailsPage extends StatelessWidget {
             ),
             child: ElevatedButton(
               onPressed: () {
-                // Obsługa nawigacji dla przycisku "Rybki"
               },
               child: Text(
                 'Rybki',
@@ -147,7 +144,6 @@ class DetailsPage extends StatelessWidget {
             ),
             child: ElevatedButton(
               onPressed: () {
-                // Obsługa nawigacji dla przycisku "Ustawienia"
               },
               child: Text(
                 'Ustawienia',

@@ -36,7 +36,6 @@ class _AquariumsPageState extends State<AquariumsPage> {
           }).toList();
         });
       } else {
-        // Obsługa błędu
         print('Błąd podczas ładowania akwariów: ${response.statusCode}');
       }
     } else {
@@ -46,7 +45,7 @@ class _AquariumsPageState extends State<AquariumsPage> {
 
   Future<void> _addAquarium(String aquariumName, int aquariumCapacity) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int loggedInUserId = prefs.getInt('logged_in_user') ?? 0; // Domyślna wartość w przypadku braku zalogowanego użytkownika
+    int loggedInUserId = prefs.getInt('logged_in_user') ?? 0;
 
     if (loggedInUserId != 0) {
       final response = await http.post(
@@ -61,11 +60,9 @@ class _AquariumsPageState extends State<AquariumsPage> {
       );
 
       if (response.statusCode == 201) {
-        // Akwarium zostało dodane pomyślnie
         print('Akwarium zostało pomyślnie dodane.');
-        _loadAquariums(); // Ponownie wczytaj akwaria po dodaniu nowego
+        _loadAquariums(); 
       } else {
-        // Obsługa błędu
         print('Błąd podczas dodawania akwarium: ${response.statusCode}');
       }
     } else {
@@ -166,8 +163,8 @@ class _AquariumsPageState extends State<AquariumsPage> {
                     ),
                     Image.asset(
                       _aquariums[index]['imagePath']!,
-                      width: 200, // Ustaw szerokość obrazka na ekranie
-                      height: 200, // Ustaw wysokość obrazka na ekranie
+                      width: 200, 
+                      height: 200, 
                     ),
                   ],
                 ),
