@@ -1,31 +1,31 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:smart_aquarium/ui/SensorsPage.dart';
-
 
 class DetailsPage extends StatelessWidget {
   final int aquariumId;
   final String aquariumName;
 
-  DetailsPage(this.aquariumId, this.aquariumName);
-
+  const DetailsPage(this.aquariumId, this.aquariumName, {super.key});
 
   void _measurements(BuildContext context) {
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => SensorsPage(this.aquariumId)),
-      );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SensorsPage(aquariumId)),
+    );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Twoje akwarium',
         ),
       ),
       body: Container(
-      decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -33,130 +33,126 @@ class DetailsPage extends StatelessWidget {
           ),
         ),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              aquariumName,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-
-              'assets/aqua.png',
-              height: 200,
-            ),
-          ),
-          SizedBox(height: 20),
-          Container(
-            height: 50.0,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-              },
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Alarmy',
-                style: TextStyle(fontSize: 20.0, color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                elevation: 0,
+                aquariumName,
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
             ),
-          ),
-          SizedBox(height: 10),
-          Container(
-            height: 50.0,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-              },
-              child: Text(
-                'Zarządzaj akwarium',
-                style: TextStyle(fontSize: 20.0, color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                elevation: 0,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset(
+                'assets/aqua.png',
+                height: 200,
               ),
             ),
-          ),
-          SizedBox(height: 10),
-          Container(
-            height: 50.0,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: ElevatedButton(
-              onPressed: () => _measurements(context),
-              child: Text(
-                'Pomiary',
-                style: TextStyle(fontSize: 20.0, color: Colors.white),
+            const SizedBox(height: 20),
+            Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(10.0),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                elevation: 0,
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          Container(
-            height: 50.0,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-              },
-              child: Text(
-                'Rybki',
-                style: TextStyle(fontSize: 20.0, color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                elevation: 0,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Alarmy',
+                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 10),
-          Container(
-            height: 50.0,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-              },
-              child: Text(
-                'Ustawienia',
-                style: TextStyle(fontSize: 20.0, color: Colors.white),
+            const SizedBox(height: 10),
+            Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(10.0),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                elevation: 0,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Zarządzaj akwarium',
+                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+            const SizedBox(height: 10),
+            Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: ElevatedButton(
+                onPressed: () => _measurements(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Pomiary',
+                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Rybki',
+                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Ustawienia',
+                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

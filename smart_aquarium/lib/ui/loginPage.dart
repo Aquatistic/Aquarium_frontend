@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -6,12 +8,13 @@ import 'package:http/http.dart' as http;
 import 'package:smart_aquarium/ui/registerPage.dart';
 import 'package:smart_aquarium/ui/aquariumsPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:smart_aquarium/config.dart';
 
 Future<User?> fetchUser(String login, String userEmail) async {
-  final response = await http.get(Uri.parse('http://localhost:6868/api/v1/users'));
+  final response = await http.get(Uri.parse('$baseUrl/api/v1/users'));
 
   if (response.statusCode == 200) {
+    debugPrint('Users data successfully fetched');
     List<dynamic> data = jsonDecode(response.body);
     for (var item in data) {
       User user = User.fromJson(item);
@@ -21,7 +24,7 @@ Future<User?> fetchUser(String login, String userEmail) async {
     }
     return null;
   } else {
-    throw Exception('Błąd podczas pobierania danych użytkownika: ${response.statusCode}');
+    throw Exception('Error when fetching users: ${response.statusCode}');
   }
 }
 
@@ -57,6 +60,8 @@ class LoginPage extends StatelessWidget {
   final TextEditingController _loginController = TextEditingController();
   final TextEditingController _userEmailController = TextEditingController();
 
+  LoginPage({super.key});
+
   void _login(BuildContext context) async {
     String login = _loginController.text;
     String userEmail = _userEmailController.text;
@@ -69,21 +74,21 @@ class LoginPage extends StatelessWidget {
         prefs.setInt('logged_in_user', user.userId);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => AquariumsPage()),
+          MaterialPageRoute(builder: (context) => const AquariumsPage()),
         );
       } else {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Błąd logowania'),
-              content: Text('Niepoprawne dane logowania.'),
+              title: const Text('Błąd logowania'),
+              content: const Text('Niepoprawne dane logowania.'),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('OK'),
+                  child: const Text('OK'),
                 ),
               ],
             );
@@ -91,29 +96,29 @@ class LoginPage extends StatelessWidget {
         );
       }
     } catch (e) {
-      print('Wystąpił błąd podczas logowania: $e');
+      debugPrint('Error when logging: $e');
     }
-}
+  }
 
   void _register(BuildContext context) {
-
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => RegisterPage()),
     );
   }
-@override
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-    'Logowanie',
-    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold), 
-  ),
-  centerTitle: true,
+        title: const Text(
+          'Logowanie',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -121,7 +126,7 @@ class LoginPage extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -129,12 +134,11 @@ class LoginPage extends StatelessWidget {
                 'assets/login_logo.png',
                 height: 150,
               ),
-              
-              SizedBox(height: 100.0),
+              const SizedBox(height: 100.0),
               TextField(
                 controller: _loginController,
-                style: TextStyle(color: Color(0xFF828282)),
-                decoration: InputDecoration(
+                style: const TextStyle(color: Color(0xFF828282)),
+                decoration: const InputDecoration(
                   labelText: 'login',
                   labelStyle: TextStyle(color: Color(0xFF828282)),
                   prefixIcon: Icon(Icons.login, color: Color(0xFF828282)),
@@ -143,12 +147,12 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               TextField(
                 controller: _userEmailController,
-                style: TextStyle(color: Color(0xFF828282)),
+                style: const TextStyle(color: Color(0xFF828282)),
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Hasło',
                   labelStyle: TextStyle(color: Color(0xFF828282)),
                   prefixIcon: Icon(Icons.lock, color: Color(0xFF828282)),
@@ -157,34 +161,34 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20.0),
-        Container(
-          height: 50.0, 
-          width: double.infinity, 
-          decoration: BoxDecoration(
-            color: Colors.transparent, 
-            borderRadius: BorderRadius.circular(10.0), 
-          ),
-          child: ElevatedButton(
-            onPressed: () => _login(context),
-            child: Text(
-              'Zaloguj',
-              style: TextStyle(fontSize: 20.0, color: Colors.white), 
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue, 
-              elevation: 0, 
-    ),
-  ),
-),
-SizedBox(height: 20.0),
-TextButton(
-  onPressed: () => _register(context),
-  child: Text(
-    'Zarejestruj się',
-    style: TextStyle(fontSize: 20.0, color: Colors.blue), 
-  ),
-),
+              const SizedBox(height: 20.0),
+              Container(
+                height: 50.0,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: ElevatedButton(
+                  onPressed: () => _login(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Zaloguj',
+                    style: TextStyle(fontSize: 20.0, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20.0),
+              TextButton(
+                onPressed: () => _register(context),
+                child: const Text(
+                  'Zarejestruj się',
+                  style: TextStyle(fontSize: 20.0, color: Colors.blue),
+                ),
+              ),
             ],
           ),
         ),
@@ -192,5 +196,3 @@ TextButton(
     );
   }
 }
-
-
