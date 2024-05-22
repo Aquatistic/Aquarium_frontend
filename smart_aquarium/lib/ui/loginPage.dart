@@ -1,48 +1,124 @@
+// ignore_for_file: file_names
+
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:smart_aquarium/ui/registerPage.dart';
 import 'package:smart_aquarium/ui/aquariumsPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_aquarium/config.dart';
 
+Future<User?> fetchUser(String login, String userEmail) async {
+  final response = await http.get(Uri.parse('$baseUrl/api/v1/users'));
 
+  if (response.statusCode == 200) {
+    debugPrint('Users data successfully fetched');
+    List<dynamic> data = jsonDecode(response.body);
+    for (var item in data) {
+      User user = User.fromJson(item);
+      if (user.userName == login && user.userEmail == userEmail) {
+        return user;
+      }
+    }
+    return null;
+  } else {
+    throw Exception('Error when fetching users: ${response.statusCode}');
+  }
+}
+
+class User {
+  final String userName;
+  final int userId;
+  final String userEmail;
+
+  const User({
+    required this.userName,
+    required this.userId,
+    required this.userEmail,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return switch (json) {
+      {
+        'userName': String userName,
+        'userId': int userId,
+        'userEmail': String userEmail,
+      } =>
+        User(
+          userName: userName,
+          userId: userId,
+          userEmail: userEmail,
+        ),
+      _ => throw const FormatException('Failed to load User.'),
+    };
+  }
+}
 
 class LoginPage extends StatelessWidget {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _loginController = TextEditingController();
+  final TextEditingController _userEmailController = TextEditingController();
 
-  void _login(BuildContext context) {
-    // Tutaj dodaj kod logiki uwierzytelniania
-    String email = _emailController.text;
-    String password = _passwordController.text;
+  LoginPage({super.key});
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => aquariumsPage()),
-    );
+  void _login(BuildContext context) async {
+    String login = _loginController.text;
+    String userEmail = _userEmailController.text;
 
-    // Tutaj można wykonać logikę uwierzytelniania, np. zapytanie do serwera
-    // Jeśli uwierzytelnienie się powiedzie, możesz przejść do następnego ekranu
-    // W przeciwnym razie możesz wyświetlić komunikat o błędzie lub inny odpowiedni komunikat
+    try {
+      User? user = await fetchUser(login, userEmail);
+
+      if (user != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setInt('logged_in_user', user.userId);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AquariumsPage()),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Błąd logowania'),
+              content: const Text('Niepoprawne dane logowania.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      debugPrint('Error when logging: $e');
+    }
   }
-  void _register(BuildContext context) {
-    // Tutaj dodaj kod logiki uwierzytelniania
 
+  void _register(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => RegisterPage()),
     );
   }
-@override
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-    'Logowanie',
-    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold), // Ustawienie większej czcionki i pogrubienie tekstu
-  ),
-  centerTitle: true, // Wyśrodkowanie tekstu w pasku aplikacji
+        title: const Text(
+          'Logowanie',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -50,7 +126,7 @@ class LoginPage extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -58,26 +134,25 @@ class LoginPage extends StatelessWidget {
                 'assets/login_logo.png',
                 height: 150,
               ),
-              
-              SizedBox(height: 100.0),
+              const SizedBox(height: 100.0),
               TextField(
-                controller: _emailController,
-                style: TextStyle(color: Color(0xFF828282)),
-                decoration: InputDecoration(
-                  labelText: 'Email',
+                controller: _loginController,
+                style: const TextStyle(color: Color(0xFF828282)),
+                decoration: const InputDecoration(
+                  labelText: 'login',
                   labelStyle: TextStyle(color: Color(0xFF828282)),
-                  prefixIcon: Icon(Icons.email, color: Color(0xFF828282)),
+                  prefixIcon: Icon(Icons.login, color: Color(0xFF828282)),
                   border: OutlineInputBorder(
                     borderSide: BorderSide(color: Color(0xFF828282)),
                   ),
                 ),
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               TextField(
-                controller: _passwordController,
-                style: TextStyle(color: Color(0xFF828282)),
+                controller: _userEmailController,
+                style: const TextStyle(color: Color(0xFF828282)),
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Hasło',
                   labelStyle: TextStyle(color: Color(0xFF828282)),
                   prefixIcon: Icon(Icons.lock, color: Color(0xFF828282)),
@@ -86,41 +161,38 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20.0),
-        Container(
-          height: 50.0, // Ustawienie wysokości przycisku
-          width: double.infinity, // Rozciągnięcie przycisku na całą szerokość dostępnej przestrzeni
-          decoration: BoxDecoration(
-            color: Colors.transparent, // Kolor tła przycisku
-            borderRadius: BorderRadius.circular(10.0), // Zaokrąglenie rogów przycisku
-          ),
-          child: ElevatedButton(
-            onPressed: () => _login(context),
-            child: Text(
-              'Zaloguj',
-              style: TextStyle(fontSize: 20.0, color: Colors.white), // Rozmiar tekstu w przycisku
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue, // Przezroczysty kolor tła przycisku
-              elevation: 0, // Usunięcie cienia przycisku
-    ),
-  ),
-),
-SizedBox(height: 20.0),
-TextButton(
-  onPressed: () => _register(context),
-  child: Text(
-    'Zarejestruj się',
-    style: TextStyle(fontSize: 20.0, color: Colors.blue), // Styl tekstu przycisku
-  ),
-),
+              const SizedBox(height: 20.0),
+              Container(
+                height: 50.0,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: ElevatedButton(
+                  onPressed: () => _login(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Zaloguj',
+                    style: TextStyle(fontSize: 20.0, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20.0),
+              TextButton(
+                onPressed: () => _register(context),
+                child: const Text(
+                  'Zarejestruj się',
+                  style: TextStyle(fontSize: 20.0, color: Colors.blue),
+                ),
+              ),
             ],
           ),
         ),
       ),
-            // Figma Flutter Generator CreatteaccountWidget - FRAME
     );
   }
 }
-
-
