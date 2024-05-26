@@ -41,11 +41,11 @@ class RegisterPage extends StatelessWidget {
       return;
     }
 
-    int token =
+    String token =
         await registerUser(username, email, password, firstname, lastname);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('token', token);
+    prefs.setString('token', token);
 
     Navigator.push(
       context,
@@ -243,7 +243,7 @@ class RegisterPage extends StatelessWidget {
   }
 }
 
-Future<int> registerUser(String username, String email, String password,
+Future<String> registerUser(String username, String email, String password,
     String firstname, String lastname) async {
   try {
     var url = Uri.parse('$baseUrl/api/v1/auth/register');
@@ -266,14 +266,14 @@ Future<int> registerUser(String username, String email, String password,
       debugPrint('User is succesfully registered.');
       Map<String, dynamic> responseData = jsonDecode(response.body);
 
-      int token = responseData['token'];
+      String token = responseData['token'];
       return token;
     } else {
       debugPrint('Error during registration: ${response.statusCode}');
-      return -1;
+      return '';
     }
   } catch (e) {
     debugPrint('Error during registration: $e');
-    return -1;
+    return '';
   }
 }
