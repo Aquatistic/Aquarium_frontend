@@ -41,16 +41,21 @@ class RegisterPage extends StatelessWidget {
       return;
     }
 
-    String token =
-        await registerUser(username, email, password, firstname, lastname);
+    try {
+      String token =
+          await registerUser(username, email, password, firstname, lastname);
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('token', token);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', token);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AquariumsPage()),
-    );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AquariumsPage()),
+      );
+    } catch (e) {
+      _showErrorDialog(
+          context, "Błąd połączenia z serwerem. Spróbuj ponownie.");
+    }
   }
 
   bool isValidEmail(String email) {
@@ -247,7 +252,6 @@ Future<String> registerUser(String username, String email, String password,
     String firstname, String lastname) async {
   try {
     var url = Uri.parse('$baseUrl/api/v1/auth/register');
-    {}
     var body = jsonEncode({
       'firstname': firstname,
       'lastname': lastname,
@@ -263,17 +267,17 @@ Future<String> registerUser(String username, String email, String password,
     );
 
     if (response.statusCode == 200) {
-      debugPrint('User is succesfully registered.');
+      debugPrint('User is successfully registered.');
       Map<String, dynamic> responseData = jsonDecode(response.body);
 
       String token = responseData['token'];
       return token;
     } else {
       debugPrint('Error during registration: ${response.statusCode}');
-      return '';
+      throw Exception('Error during registration: ${response.statusCode}');
     }
   } catch (e) {
     debugPrint('Error during registration: $e');
-    return '';
+    throw Exception('Error during registration: $e');
   }
 }
