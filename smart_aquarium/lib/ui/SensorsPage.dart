@@ -27,8 +27,13 @@ class _SensorsPageState extends State<SensorsPage> {
   Future<List<dynamic>> _fetchSensors() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int aquariumId = prefs.getInt('aquarium_id') ?? 0;
+    String token = prefs.getString('token') ?? '';
 
-    final response = await http.get(Uri.parse('$baseUrl/api/v1/userSensor'));
+    final response =
+        await http.get(Uri.parse('$baseUrl/api/v1/userSensor'), headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
     if (response.statusCode == 200) {
       debugPrint('UserSensors data successfully fetched');
       final List<dynamic> userSensors = jsonDecode(response.body);
@@ -83,7 +88,7 @@ class _SensorsPageState extends State<SensorsPage> {
                             buttonText = 'Poziom wody';
                             break;
                           case 3:
-                            buttonText = 'Kolor';
+                            buttonText = 'Napełnienie Karmnika';
                             break;
                           case 4:
                             buttonText = 'PH';

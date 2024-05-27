@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:smart_aquarium/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MeasurementsPage extends StatefulWidget {
   final int userSensorId;
@@ -25,7 +26,13 @@ class _MeasurementsPageState extends State<MeasurementsPage> {
   }
 
   Future<void> _fetchMeasurements() async {
-    final response = await http.get(Uri.parse('$baseUrl/api/v1/measurements'));
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String token = prefs.getString('token') ?? '';
+    final response =
+        await http.get(Uri.parse('$baseUrl/api/v1/measurements'), headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
     if (response.statusCode == 200) {
       debugPrint('Measurements data successfully fetched');
       final List<dynamic> fetchedMeasurements = jsonDecode(response.body);

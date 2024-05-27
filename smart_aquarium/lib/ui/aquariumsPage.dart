@@ -25,10 +25,14 @@ class _AquariumsPageState extends State<AquariumsPage> {
 
   Future<void> _loadAquariums() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int loggedInUserId = prefs.getInt('logged_in_user') ?? 0;
-    if (loggedInUserId != 0) {
+    int userId = prefs.getInt('userId') ?? 0;
+    String token = prefs.getString('token') ?? '';
+    if (userId != 0 && token.isNotEmpty) {
       final response = await http
-          .get(Uri.parse('$baseUrl/api/v1/aquarium/users/$loggedInUserId'));
+          .get(Uri.parse('$baseUrl/api/v1/aquarium/users/$userId'), headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
 
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
@@ -46,23 +50,27 @@ class _AquariumsPageState extends State<AquariumsPage> {
         debugPrint('Error when loading aquariuma: ${response.statusCode}');
       }
     } else {
-      debugPrint('Error when loading aquariums: No loggedInUserId');
+      debugPrint('Error when loading aquariums: No userId');
     }
   }
 
   Future<void> _addAquarium(String aquariumName, int aquariumCapacity) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int loggedInUserId = prefs.getInt('logged_in_user') ?? 0;
+    int userId = prefs.getInt('userId') ?? 0;
+    String token = prefs.getString('token') ?? '';
 
-    if (loggedInUserId != 0) {
+    if (userId != 0 && token.isNotEmpty) {
       final response = await http.post(
         Uri.parse('$baseUrl/api/v1/aquarium/add'),
         body: jsonEncode({
           'aquariumName': aquariumName,
           'aquariumCapacity': aquariumCapacity,
-          'userId': loggedInUserId,
+          'userId': userId,
         }),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 201) {
@@ -72,7 +80,7 @@ class _AquariumsPageState extends State<AquariumsPage> {
         debugPrint('Error when adding aquarium: ${response.statusCode}');
       }
     } else {
-      debugPrint('No loggedInUserId');
+      debugPrint('No userId');
     }
   }
 
