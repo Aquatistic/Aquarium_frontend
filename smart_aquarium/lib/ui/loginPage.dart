@@ -1,8 +1,5 @@
-// ignore_for_file: file_names
-
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:smart_aquarium/ui/registerPage.dart';
@@ -31,11 +28,15 @@ Future<String> authUser(String username, String password) async {
       String token = responseData['token'];
       return token;
     } else {
-      throw Exception('Error when authenticating user: ${response.statusCode}');
+      throw Exception('Niepoprawne dane logowania.');
     }
   } catch (e) {
     debugPrint('Error during logging: $e');
-    return '';
+    if (e.toString().contains('SocketException')) {
+      throw Exception('Błąd połączenia z serwerem.  Spróbuj ponownie później.');
+    } else {
+      throw Exception('Błąd podczas logowania. $e');
+    }
   }
 }
 
@@ -56,39 +57,19 @@ class LoginPage extends StatelessWidget {
     try {
       String token = await authUser(username, password);
 
-      if (token.isNotEmpty) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('token', token);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', token);
 
-        int userId = await saveUserId(username, token);
-        if (userId == 0) {
-          debugPrint('Error when saving user id');
-        }
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AquariumsPage()),
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Błąd logowania'),
-              content: const Text('Niepoprawne dane logowania.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+      int userId = await saveUserId(username, token);
+      if (userId == 0) {
+        debugPrint('Error when saving user id');
       }
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AquariumsPage()),
+      );
     } catch (e) {
-      debugPrint('Error when logging: $e');
+      _showErrorDialog(context, e.toString().replaceAll('Exception: ', ''));
     }
   }
 
@@ -244,13 +225,13 @@ Future<int> saveUserId(String username, String token) async {
           return userId;
         }
       }
-      return 0;
+      throw Exception('Nie znaleziono użytkownika.');
     } else {
-      debugPrint('Error when fetching users: ${response.statusCode}');
-      return 0;
+      throw Exception(
+          'Błąd podczas pobierania użytkowników: ${response.statusCode}');
     }
   } catch (e) {
     debugPrint('Error when fetching users: $e');
-    return 0;
+    throw Exception('Błąd podczas pobierania użytkowników: $e');
   }
 }
