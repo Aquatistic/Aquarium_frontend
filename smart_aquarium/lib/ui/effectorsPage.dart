@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_aquarium/ui/MeasurementsPage.dart';
 import 'package:smart_aquarium/config.dart';
 import 'package:smart_aquarium/ui/LightEffectorPage.dart';
 import 'package:smart_aquarium/ui/FeederEffectorPage.dart';
+import 'package:smart_aquarium/ui/SwitchEffectorPage.dart';
 
 class EffectorsPage extends StatefulWidget {
   final int aquariumId;
@@ -90,13 +90,10 @@ class _EffectorsPageState extends State<EffectorsPage> {
                             buttonText = 'Karmnik';
                             break;
                           case 3:
-                            buttonText = 'Grzałka';
-                            break;
-                          case 4:
-                            buttonText = 'Pompa';
+                            buttonText = 'Włącznik';
                             break;
                           default:
-                            buttonText = 'Inny effector';
+                            buttonText = 'Inny efektor';
                         }
 
                         return Column(
@@ -130,6 +127,19 @@ class _EffectorsPageState extends State<EffectorsPage> {
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             FeederEffectorPage(
+                                                widget.aquariumId,
+                                                validUserEffectors[index]
+                                                    ['userEffectorTypeId']),
+                                      ),
+                                    );
+                                  } else if (validUserEffectors[index]
+                                          ['effectorType']['effectorTypeId'] ==
+                                      3) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            SwitchEffectorPage(
                                                 widget.aquariumId,
                                                 validUserEffectors[index]
                                                     ['userEffectorTypeId']),

@@ -5,19 +5,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_aquarium/config.dart';
 
-class FeederEffectorPage extends StatefulWidget {
+class SwitchEffectorPage extends StatefulWidget {
   final int aquariumId;
   final int effectorId;
 
-  const FeederEffectorPage(this.aquariumId, this.effectorId, {super.key});
+  const SwitchEffectorPage(this.aquariumId, this.effectorId, {super.key});
 
   @override
-  _FeederEffectorPageState createState() => _FeederEffectorPageState();
+  _SwitchEffectorPageState createState() => _SwitchEffectorPageState();
 }
 
-class _FeederEffectorPageState extends State<FeederEffectorPage> {
+class _SwitchEffectorPageState extends State<SwitchEffectorPage> {
   DateTime _controlActivationMoment = DateTime.now();
-  final TextEditingController _amountController = TextEditingController();
 
   @override
   void initState() {
@@ -30,7 +29,6 @@ class _FeederEffectorPageState extends State<FeederEffectorPage> {
 
     final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
     final String formattedDate = formatter.format(_controlActivationMoment);
-    final double amount = double.tryParse(_amountController.text) ?? 0.0;
 
     final response = await http.post(
       Uri.parse('$baseUrl/api/v1/userEffector/update'),
@@ -41,19 +39,19 @@ class _FeederEffectorPageState extends State<FeederEffectorPage> {
       body: jsonEncode({
         'aquariumId': widget.aquariumId,
         'effectorId': widget.effectorId,
-        'value': amount,
+        'value': 1.0,
         'controllActivationMoment': formattedDate,
       }),
     );
 
     if (response.statusCode == 200) {
-      debugPrint('Fish fed successfully');
+      debugPrint('Switched successfully');
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ryby nakanione pomyślnie')));
+          const SnackBar(content: Text('Włącznik włączony pomyślnie')));
     } else {
-      debugPrint('Error feeding fish: ${response.statusCode}');
+      debugPrint('Error in switching: ${response.statusCode}');
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Błąd podczas karmienia ryb')));
+          const SnackBar(content: Text('Błąd podczas włączania włącznika')));
     }
   }
 
@@ -61,7 +59,7 @@ class _FeederEffectorPageState extends State<FeederEffectorPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Karmnik'),
+        title: const Text('Włącznik'),
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -76,27 +74,12 @@ class _FeederEffectorPageState extends State<FeederEffectorPage> {
           children: [
             const SizedBox(height: 20),
             const Text(
-              'Nakarm ryby',
+              'Włącznik',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20.0),
             ),
             const SizedBox(height: 20),
-            Image.asset(
-              'assets/fish.png',
-              height: 200,
-            ),
             const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Wpisz ilość karmy w gramach',
-                ),
-              ),
-            ),
             const SizedBox(height: 20),
             Container(
               height: 50.0,
@@ -112,7 +95,7 @@ class _FeederEffectorPageState extends State<FeederEffectorPage> {
                   ),
                 ),
                 child: const Text(
-                  'Nakarm',
+                  'Włącz',
                   style: TextStyle(fontSize: 20.0, color: Colors.white),
                 ),
               ),
