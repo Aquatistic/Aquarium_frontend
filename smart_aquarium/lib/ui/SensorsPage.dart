@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_aquarium/ui/MeasurementsPage.dart';
+import 'package:smart_aquarium/ui/WaterLevelPage.dart';
 import 'package:smart_aquarium/config.dart';
 import 'package:smart_aquarium/ui/TemperaturePage.dart';
 
@@ -120,15 +120,15 @@ class _SensorsPageState extends State<SensorsPage> {
                                                 ['userSensorId']),
                                       ),
                                     );
-                                  } else {
+                                  } else if (validUserSensors[index]
+                                          ['sensorType']['sensorTypeId'] ==
+                                      2) {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => MeasurementsPage(
+                                        builder: (context) => WaterLevelPage(
                                             validUserSensors[index]
-                                                ['userSensorId'],
-                                            validUserSensors[index]
-                                                ['sensorType']['sensorTypeId']),
+                                                ['userSensorId']),
                                       ),
                                     );
                                   }
