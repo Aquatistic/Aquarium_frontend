@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:smart_aquarium/ui/SensorsPage.dart';
+import 'package:smart_aquarium/ui/FishPage.dart';
 import 'package:smart_aquarium/ui/effectorsPage.dart';
 
 class DetailsPage extends StatelessWidget {
@@ -17,6 +18,10 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
+  void _fishPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => FishPage(aquariumId)),
   void _effectorsPage(BuildContext context) {
     Navigator.push(
       context,
@@ -60,25 +65,6 @@ class DetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Container(
-              height: 50.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Alarmy',
-                  style: TextStyle(fontSize: 20.0, color: Colors.white),
-                ),
-              ),
-            ),
             const SizedBox(height: 10),
             Container(
               height: 50.0,
@@ -128,7 +114,7 @@ class DetailsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () => _fishPage(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   elevation: 0,
@@ -140,25 +126,6 @@ class DetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Container(
-              height: 50.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Ustawienia',
-                  style: TextStyle(fontSize: 20.0, color: Colors.white),
-                ),
-              ),
-            ),
           ],
         ),
       ),
