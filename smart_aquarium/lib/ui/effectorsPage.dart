@@ -4,54 +4,54 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_aquarium/ui/WaterLevelPage.dart';
 import 'package:smart_aquarium/config.dart';
-import 'package:smart_aquarium/ui/TemperaturePage.dart';
-import 'package:smart_aquarium/ui/FeederStatusPage.dart';
+import 'package:smart_aquarium/ui/LightEffectorPage.dart';
+import 'package:smart_aquarium/ui/FeederEffectorPage.dart';
+import 'package:smart_aquarium/ui/SwitchEffectorPage.dart';
 
-class SensorsPage extends StatefulWidget {
+class EffectorsPage extends StatefulWidget {
   final int aquariumId;
   @override
-  _SensorsPageState createState() => _SensorsPageState();
+  _EffectorsPageState createState() => _EffectorsPageState();
 
-  const SensorsPage(this.aquariumId, {super.key});
+  const EffectorsPage(this.aquariumId, {super.key});
 }
 
-class _SensorsPageState extends State<SensorsPage> {
-  List<dynamic> validUserSensors = [];
+class _EffectorsPageState extends State<EffectorsPage> {
+  List<dynamic> validUserEffectors = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchSensors();
+    _fetchEffectors();
   }
 
-  Future<List<dynamic>> _fetchSensors() async {
+  Future<List<dynamic>> _fetchEffectors() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int aquariumId = prefs.getInt('aquarium_id') ?? 0;
     String token = prefs.getString('token') ?? '';
 
     final response =
-        await http.get(Uri.parse('$baseUrl/api/v1/userSensor'), headers: {
+        await http.get(Uri.parse('$baseUrl/api/v1/userEffector'), headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     });
     if (response.statusCode == 200) {
-      debugPrint('UserSensors data successfully fetched');
-      final List<dynamic> userSensors = jsonDecode(response.body);
-      validUserSensors = userSensors
-          .where((sensor) => sensor['aquarium']['aquariumId'] == aquariumId)
+      debugPrint('UserEffectors data successfully fetched');
+      final List<dynamic> userEffectors = jsonDecode(response.body);
+      validUserEffectors = userEffectors
+          .where((effector) => effector['aquarium']['aquariumId'] == aquariumId)
           .toList();
     } else {
-      debugPrint('Error when fetching userSensors: ${response.statusCode}');
+      debugPrint('Error when fetching userEffectors: ${response.statusCode}');
     }
-    return validUserSensors;
+    return validUserEffectors;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<dynamic>>(
-      future: _fetchSensors(),
+      future: _fetchEffectors(),
       builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -78,23 +78,22 @@ class _SensorsPageState extends State<SensorsPage> {
                   const SizedBox(height: 20),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: validUserSensors.length,
+                      itemCount: validUserEffectors.length,
                       itemBuilder: (context, index) {
                         String buttonText;
-                        switch (validUserSensors[index]['sensorType']
-                            ['sensorTypeId']) {
+                        switch (validUserEffectors[index]['effectorType']
+                            ['effectorTypeId']) {
                           case 1:
-                            buttonText = 'Temperatura';
+                            buttonText = 'Oświetlenie';
                             break;
                           case 2:
-                            buttonText = 'Poziom wody';
+                            buttonText = 'Karmnik';
                             break;
-                          case 4:
-                            buttonText = 'Napełnienie Karmnika';
+                          case 3:
+                            buttonText = 'Włącznik';
                             break;
-
                           default:
-                            buttonText = 'Inny sensor';
+                            buttonText = 'Inny efektor';
                         }
 
                         return Column(
@@ -108,37 +107,42 @@ class _SensorsPageState extends State<SensorsPage> {
                               ),
                               child: ElevatedButton(
                                 onPressed: () {
-                                  if (validUserSensors[index]['sensorType']
-                                          ['sensorTypeId'] ==
+                                  if (validUserEffectors[index]['effectorType']
+                                          ['effectorTypeId'] ==
                                       1) {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => TemperaturePage(
-                                            validUserSensors[index]
-                                                ['userSensorId']),
+                                        builder: (context) => LightEffectorPage(
+                                            widget.aquariumId,
+                                            validUserEffectors[index]
+                                                ['userEffectorTypeId']),
                                       ),
                                     );
-                                  } else if (validUserSensors[index]
-                                          ['sensorType']['sensorTypeId'] ==
+                                  } else if (validUserEffectors[index]
+                                          ['effectorType']['effectorTypeId'] ==
                                       2) {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => WaterLevelPage(
-                                            validUserSensors[index]
-                                                ['userSensorId']),
+                                        builder: (context) =>
+                                            FeederEffectorPage(
+                                                widget.aquariumId,
+                                                validUserEffectors[index]
+                                                    ['userEffectorTypeId']),
                                       ),
                                     );
-                                  } else if (validUserSensors[index]
-                                          ['sensorType']['sensorTypeId'] ==
-                                      4) {
+                                  } else if (validUserEffectors[index]
+                                          ['effectorType']['effectorTypeId'] ==
+                                      3) {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => FeederStatusPage(
-                                            validUserSensors[index]
-                                                ['userSensorId']),
+                                        builder: (context) =>
+                                            SwitchEffectorPage(
+                                                widget.aquariumId,
+                                                validUserEffectors[index]
+                                                    ['userEffectorTypeId']),
                                       ),
                                     );
                                   }

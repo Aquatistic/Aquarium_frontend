@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_aquarium/ui/SensorsPage.dart';
 import 'package:smart_aquarium/ui/FishPage.dart';
+import 'package:smart_aquarium/ui/effectorsPage.dart';
 
 class DetailsPage extends StatelessWidget {
   final int aquariumId;
@@ -10,7 +11,7 @@ class DetailsPage extends StatelessWidget {
 
   const DetailsPage(this.aquariumId, this.aquariumName, {super.key});
 
-  void _measurements(BuildContext context) {
+  void _sensorsPage(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => SensorsPage(aquariumId)),
@@ -21,6 +22,10 @@ class DetailsPage extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => FishPage(aquariumId)),
+  void _effectorsPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EffectorsPage(aquariumId)),
     );
   }
 
@@ -69,7 +74,7 @@ class DetailsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () => _effectorsPage(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   elevation: 0,
@@ -89,7 +94,7 @@ class DetailsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: ElevatedButton(
-                onPressed: () => _measurements(context),
+                onPressed: () => _sensorsPage(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   elevation: 0,
