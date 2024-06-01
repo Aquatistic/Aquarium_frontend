@@ -17,7 +17,7 @@ class TemperaturePage extends StatefulWidget {
 
 class _TemperaturePageState extends State<TemperaturePage> {
   List<dynamic> _measurements = [];
-  int _days = 1; // Default to last 1 day
+  int _days = 1;
 
   @override
   void initState() {
@@ -61,6 +61,15 @@ class _TemperaturePageState extends State<TemperaturePage> {
       final double value = measurement['measurementValue'];
       return FlSpot(date.millisecondsSinceEpoch.toDouble(), value);
     }).toList();
+  }
+
+  String _getLatestMeasurement() {
+    if (_measurements.isEmpty) return 'Brak danych';
+    final latestMeasurement = _measurements.first;
+    final latestDate = DateFormat('yyyy-MM-dd HH:mm:ss')
+        .parse(latestMeasurement['measurementTimestamp']);
+    final latestValue = latestMeasurement['measurementValue'];
+    return '${latestValue}°C\n${DateFormat('dd/MM/yyyy HH:mm').format(latestDate)}';
   }
 
   @override
@@ -114,9 +123,21 @@ class _TemperaturePageState extends State<TemperaturePage> {
               ],
             ),
             const SizedBox(height: 20),
+            Text(
+              'Najnowsza zmierzona wartość:',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20.0),
+            ),
+            Text(
+              _getLatestMeasurement(),
+              textAlign: TextAlign.center,
+              style:
+                  const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.only(right: 30.0, left: 6.0),
                 child: LineChart(
                   LineChartData(
                     gridData: FlGridData(show: true),
@@ -124,24 +145,58 @@ class _TemperaturePageState extends State<TemperaturePage> {
                       leftTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
-                          interval: 5, // Adjust the interval to avoid clutter
+                          interval: 5,
+                          reservedSize: 40,
                           getTitlesWidget: (value, meta) {
-                            return Text('$value°C',
-                                style: const TextStyle(fontSize: 10));
+                            return SideTitleWidget(
+                              axisSide: meta.axisSide,
+                              space: 8.0,
+                              child: Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '${value.toInt()}°C',
+                                  style: const TextStyle(fontSize: 12),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            );
                           },
                         ),
                       ),
                       bottomTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
-                          interval:
-                              60000000, // Adjust the interval to show appropriate number of labels
                           getTitlesWidget: (value, meta) {
+                            final List<FlSpot> spots = _getFilteredSpots();
+                            if (spots.isEmpty) {
+                              return const Text('');
+                            }
                             final DateTime date =
                                 DateTime.fromMillisecondsSinceEpoch(
                                     value.toInt());
-                            return Text(DateFormat('dd/MM HH:mm').format(date),
-                                style: const TextStyle(fontSize: 10));
+
+                            final double firstX = spots.first.x;
+                            final double lastX = spots.last.x;
+                            final double middleX =
+                                firstX + (lastX - firstX) / 2;
+
+                            double closestToMiddleX = firstX;
+                            for (final spot in spots) {
+                              if ((spot.x - middleX).abs() <
+                                  (closestToMiddleX - middleX).abs()) {
+                                closestToMiddleX = spot.x;
+                              }
+                            }
+
+                            if (value == firstX ||
+                                value == closestToMiddleX ||
+                                value == lastX) {
+                              return Text(
+                                  DateFormat('dd/MM HH:mm').format(date),
+                                  style: const TextStyle(fontSize: 10));
+                            } else {
+                              return const Text('');
+                            }
                           },
                         ),
                       ),
@@ -177,6 +232,12 @@ class _TemperaturePageState extends State<TemperaturePage> {
                       ),
                       handleBuiltInTouches: true,
                     ),
+                    // minX: _getFilteredSpots().isNotEmpty
+                    //     ? _getFilteredSpots().first.x - 3600000 // Safe offset of 1 hour in milliseconds
+                    //     : 0,
+                    // maxX: _getFilteredSpots().isNotEmpty
+                    //     ? _getFilteredSpots().last.x + 3600000 // Safe offset of 1 hour in milliseconds
+                    //     : 0,
                   ),
                 ),
               ),
