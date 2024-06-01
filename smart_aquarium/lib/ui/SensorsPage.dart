@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_aquarium/ui/WaterLevelPage.dart';
 import 'package:smart_aquarium/config.dart';
 import 'package:smart_aquarium/ui/TemperaturePage.dart';
+import 'package:smart_aquarium/ui/FeederStatusPage.dart';
 
 class SensorsPage extends StatefulWidget {
   final int aquariumId;
@@ -88,12 +89,10 @@ class _SensorsPageState extends State<SensorsPage> {
                           case 2:
                             buttonText = 'Poziom wody';
                             break;
-                          case 3:
+                          case 4:
                             buttonText = 'Napełnienie Karmnika';
                             break;
-                          case 4:
-                            buttonText = 'PH';
-                            break;
+
                           default:
                             buttonText = 'Inny sensor';
                         }
@@ -127,6 +126,17 @@ class _SensorsPageState extends State<SensorsPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => WaterLevelPage(
+                                            validUserSensors[index]
+                                                ['userSensorId']),
+                                      ),
+                                    );
+                                  } else if (validUserSensors[index]
+                                          ['sensorType']['sensorTypeId'] ==
+                                      4) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => FeederStatusPage(
                                             validUserSensors[index]
                                                 ['userSensorId']),
                                       ),
