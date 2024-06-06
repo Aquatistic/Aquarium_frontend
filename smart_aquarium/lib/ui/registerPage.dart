@@ -134,7 +134,7 @@ class RegisterPage extends StatelessWidget {
                         'assets/login_logo.png',
                         height: 150,
                       ),
-                      const SizedBox(height: 100.0),
+                      const SizedBox(height: 20.0),
                       TextField(
                         controller: _usernameController,
                         style: const TextStyle(color: Color(0xFF828282)),
