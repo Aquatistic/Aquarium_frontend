@@ -22,6 +22,9 @@ class DetailsPage extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => FishPage(aquariumId)),
+    );
+  }
+
   void _effectorsPage(BuildContext context) {
     Navigator.push(
       context,

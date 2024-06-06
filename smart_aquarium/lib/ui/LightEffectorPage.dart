@@ -17,6 +17,8 @@ class LightEffectorPage extends StatefulWidget {
 
 class _LightEffectorPageState extends State<LightEffectorPage> {
   double _lightIntensity = 0.0;
+  DateTime? _controlActivationMoment;
+  final TextEditingController _dateController = TextEditingController();
 
   Future<void> _updateLightIntensity() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -49,6 +51,75 @@ class _LightEffectorPageState extends State<LightEffectorPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Błąd podczas aktualizacji oświetlenia')),
       );
+    }
+  }
+
+  Future<void> _scheduleLightIntensityUpdate() async {
+    if (_dateController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Wybierz datę i godzinę')),
+      );
+      return;
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token') ?? '';
+
+    final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    final String formattedDate = formatter.format(_controlActivationMoment!);
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/v1/userEffector/update'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'aquariumId': widget.aquariumId,
+        'effectorId': widget.effectorId,
+        'value': _lightIntensity,
+        'controllActivationMoment': formattedDate,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      debugPrint('Light intensity scheduled successfully');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Planowanie oświetlenia pomyślnie')),
+      );
+    } else {
+      debugPrint('Error scheduling light intensity: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Błąd podczas planowania oświetlenia')),
+      );
+    }
+  }
+
+  Future<void> _selectDateTime(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      if (pickedTime != null) {
+        setState(() {
+          _controlActivationMoment = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+          _dateController.text =
+              DateFormat('yyyy-MM-dd HH:mm').format(_controlActivationMoment!);
+        });
+      }
     }
   }
 
@@ -88,15 +159,17 @@ class _LightEffectorPageState extends State<LightEffectorPage> {
               },
             ),
             const SizedBox(height: 20),
-            Container(
-              height: 50.0,
-              width: double.infinity,
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ElevatedButton(
                 onPressed: _updateLightIntensity,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  elevation: 0,
+                  elevation: 5,
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                 ),
                 child: const Text(
                   'Aktualizuj oświetlenie',
@@ -104,9 +177,51 @@ class _LightEffectorPageState extends State<LightEffectorPage> {
                 ),
               ),
             ),
+            const SizedBox(height: 40),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextField(
+                controller: _dateController,
+                readOnly: true,
+                onTap: () => _selectDateTime(context),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Wybierz datę i godzinę',
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ElevatedButton(
+                onPressed:
+                    (_lightIntensity > 0 && _dateController.text.isNotEmpty)
+                        ? _scheduleLightIntensityUpdate
+                        : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  elevation: 5,
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                child: const Text(
+                  'Zaplanuj oświetlenie',
+                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: LightEffectorPage(1, 1),
+  ));
 }
