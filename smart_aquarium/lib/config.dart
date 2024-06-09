@@ -1,2 +1,2 @@
 // config.dart
-const String baseUrl = 'http://localhost:6868';
+const String baseUrl = 'http://be-smartaquarium.com';
