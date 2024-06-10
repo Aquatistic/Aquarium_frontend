@@ -31,7 +31,7 @@ class _TemperaturePageState extends State<TemperaturePage> {
 
     final response = await http.get(
       Uri.parse(
-          '$baseUrl/api/v1/measurements/last/${widget.sensorId}/30'), // Pobierz dane z ostatnich 30 dni
+          '$baseUrl/api/v1/measurements/lastDays/${widget.sensorId}/30'), // Pobierz dane z ostatnich 30 dni
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
